@@ -27,13 +27,13 @@ class SortableTreeWidgetItem(QTreeWidgetItem):
     def __lt__(self, other: QTreeWidgetItem) -> bool:
         tree = self.treeWidget()
         if tree is None:
-            return super().__lt__(other)
+            return self.text(0) < other.text(0)
         column = tree.sortColumn()
         self_val = self.data(column, SORT_VALUE_ROLE)
         other_val = other.data(column, SORT_VALUE_ROLE)
         if self_val is not None and other_val is not None:
             return self_val < other_val
-        return super().__lt__(other)
+        return self.text(column) < other.text(column)
 
 
 def format_size(size: int) -> str:
@@ -246,8 +246,9 @@ class FilePanel(QWidget):
 
         # Add parent directory entry
         if self._current_path != "/":
-            parent_item = QTreeWidgetItem(["📁 ..", "", ""])
+            parent_item = SortableTreeWidgetItem(["📁 ..", "", ""])
             parent_item.setData(0, Qt.ItemDataRole.UserRole, "__parent__")
+            parent_item.setData(1, SORT_VALUE_ROLE, -2)
             self._tree.addTopLevelItem(parent_item)
 
         dirs = []
@@ -304,8 +305,9 @@ class FilePanel(QWidget):
         # Parent directory
         parent = str(Path(self._current_path).parent)
         if parent != self._current_path:
-            parent_item = QTreeWidgetItem(["📁 ..", "", ""])
+            parent_item = SortableTreeWidgetItem(["📁 ..", "", ""])
             parent_item.setData(0, Qt.ItemDataRole.UserRole, "__parent__")
+            parent_item.setData(1, SORT_VALUE_ROLE, -2)
             self._tree.addTopLevelItem(parent_item)
 
         dirs = []
