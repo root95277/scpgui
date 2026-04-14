@@ -17,6 +17,23 @@ from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDrag, QIcon
 
 from ssh_manager import SSHManager, RemoteFileInfo
 
+# Custom data role for storing raw numeric values used in sorting
+SORT_VALUE_ROLE = Qt.ItemDataRole.UserRole + 2
+
+
+class SortableTreeWidgetItem(QTreeWidgetItem):
+    """QTreeWidgetItem that supports numeric sorting via stored sort values."""
+
+    def __lt__(self, other: QTreeWidgetItem) -> bool:
+        column = self.treeWidget().sortColumn()
+        # Check if both items have a numeric sort value for this column
+        self_val = self.data(column, SORT_VALUE_ROLE)
+        other_val = other.data(column, SORT_VALUE_ROLE)
+        if self_val is not None and other_val is not None:
+            return self_val < other_val
+        # Fall back to default string comparison
+        return super().__lt__(other)
+
 
 def format_size(size: int) -> str:
     """Format file size in human-readable format."""
@@ -244,24 +261,26 @@ class FilePanel(QWidget):
 
         for entry in dirs:
             full_path = f"{self._current_path.rstrip('/')}/{entry.name}"
-            item = QTreeWidgetItem([
+            item = SortableTreeWidgetItem([
                 f"📁 {entry.name}",
                 "",
                 format_time(entry.mtime),
             ])
             item.setData(0, Qt.ItemDataRole.UserRole, full_path)
             item.setData(1, Qt.ItemDataRole.UserRole, True)  # is_dir flag
+            item.setData(1, SORT_VALUE_ROLE, -1)  # dirs sort before files
             self._tree.addTopLevelItem(item)
 
         for entry in files:
             full_path = f"{self._current_path.rstrip('/')}/{entry.name}"
-            item = QTreeWidgetItem([
+            item = SortableTreeWidgetItem([
                 f"📄 {entry.name}",
                 format_size(entry.size),
                 format_time(entry.mtime),
             ])
             item.setData(0, Qt.ItemDataRole.UserRole, full_path)
             item.setData(1, Qt.ItemDataRole.UserRole, False)  # is_dir flag
+            item.setData(1, SORT_VALUE_ROLE, entry.size)  # raw size for sorting
             self._tree.addTopLevelItem(item)
 
         count = len(dirs) + len(files)
@@ -308,23 +327,25 @@ class FilePanel(QWidget):
         files.sort(key=lambda x: x[0].lower())
 
         for name, full_path, size, mtime in dirs:
-            item = QTreeWidgetItem([
+            item = SortableTreeWidgetItem([
                 f"📁 {name}",
                 "",
                 format_time(mtime),
             ])
             item.setData(0, Qt.ItemDataRole.UserRole, full_path)
             item.setData(1, Qt.ItemDataRole.UserRole, True)
+            item.setData(1, SORT_VALUE_ROLE, -1)  # dirs sort before files
             self._tree.addTopLevelItem(item)
 
         for name, full_path, size, mtime in files:
-            item = QTreeWidgetItem([
+            item = SortableTreeWidgetItem([
                 f"📄 {name}",
                 format_size(size),
                 format_time(mtime),
             ])
             item.setData(0, Qt.ItemDataRole.UserRole, full_path)
             item.setData(1, Qt.ItemDataRole.UserRole, False)
+            item.setData(1, SORT_VALUE_ROLE, size)  # raw size for sorting
             self._tree.addTopLevelItem(item)
 
         count = len(dirs) + len(files)
