@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QSplitter, QApplication,
 )
 from PySide6.QtCore import Qt, QTimer
+from typing import Optional
 from PySide6.QtGui import QAction
 
 from ssh_manager import SSHManager, save_connection
@@ -27,7 +28,7 @@ class MainWindow(QMainWindow):
         self.resize(1200, 700)
 
         self._ssh = SSHManager()
-        self._transfer_worker: TransferWorker | None = None
+        self._transfer_worker: Optional[TransferWorker] = None
 
         self._setup_toolbar()
         self._setup_panels()

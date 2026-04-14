@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QStackedWidget, QWidget, QMessageBox,
 )
 from PySide6.QtCore import Qt
+from typing import Optional
 
 from ssh_manager import SSHConfig, parse_ssh_config, load_saved_connections, delete_saved_connection
 
@@ -20,7 +21,7 @@ class ConnectDialog(QDialog):
         self.setMinimumWidth(480)
         self._ssh_configs = parse_ssh_config()
         self._saved_connections = load_saved_connections()
-        self._result_config: SSHConfig | None = None
+        self._result_config: Optional[SSHConfig] = None
         self._setup_ui()
 
     def _setup_ui(self):
@@ -250,6 +251,6 @@ class ConnectDialog(QDialog):
 
         self.accept()
 
-    def get_config(self) -> SSHConfig | None:
+    def get_config(self) -> Optional[SSHConfig]:
         """Return the SSH config if dialog was accepted."""
         return self._result_config
