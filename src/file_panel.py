@@ -25,13 +25,14 @@ class SortableTreeWidgetItem(QTreeWidgetItem):
     """QTreeWidgetItem that supports numeric sorting via stored sort values."""
 
     def __lt__(self, other: QTreeWidgetItem) -> bool:
-        column = self.treeWidget().sortColumn()
-        # Check if both items have a numeric sort value for this column
+        tree = self.treeWidget()
+        if tree is None:
+            return super().__lt__(other)
+        column = tree.sortColumn()
         self_val = self.data(column, SORT_VALUE_ROLE)
         other_val = other.data(column, SORT_VALUE_ROLE)
         if self_val is not None and other_val is not None:
             return self_val < other_val
-        # Fall back to default string comparison
         return super().__lt__(other)
 
 
@@ -222,15 +223,19 @@ class FilePanel(QWidget):
 
     def refresh(self):
         """Refresh the current directory listing."""
+        self._tree.setSortingEnabled(False)
         self._tree.clear()
 
         if self._is_remote:
             if not self._ssh or not self._ssh.is_connected:
                 self._status.setText("未连接")
+                self._tree.setSortingEnabled(True)
                 return
             self._load_remote()
         else:
             self._load_local()
+
+        self._tree.setSortingEnabled(True)
 
     def _load_remote(self):
         try:
