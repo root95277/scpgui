@@ -4,7 +4,7 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout, QFormLayout,
     QLineEdit, QSpinBox, QComboBox, QPushButton,
     QFileDialog, QLabel, QGroupBox, QListWidget, QListWidgetItem,
-    QStackedWidget, QWidget, QMessageBox,
+    QStackedWidget, QWidget, QMessageBox, QMenu,
 )
 from PySide6.QtCore import Qt
 from typing import Optional
@@ -72,6 +72,13 @@ class ConnectDialog(QDialog):
         self._history_password.setPlaceholderText("输入密码或密钥口令")
         hist_pass_layout.addRow("密码:", self._history_password)
         history_layout.addLayout(hist_pass_layout)
+        # Delete selected history item button
+        hist_btn_layout = QHBoxLayout()
+        hist_btn_layout.addStretch()
+        self._btn_delete_history = QPushButton("删除选中")
+        self._btn_delete_history.clicked.connect(self._on_delete_history_clicked)
+        hist_btn_layout.addWidget(self._btn_delete_history)
+        history_layout.addLayout(hist_btn_layout)
         if not self._saved_connections:
             no_history = QLabel("暂无历史连接，手动连接成功后会自动保存")
             no_history.setStyleSheet("color: gray; padding: 20px;")
@@ -180,6 +187,13 @@ class ConnectDialog(QDialog):
 
     def _on_saved_double_click(self, item: QListWidgetItem):
         self._on_connect()
+
+    def _on_delete_history_clicked(self):
+        item = self._history_list.currentItem()
+        if not item:
+            QMessageBox.information(self, "提示", "请先选中一条历史链接")
+            return
+        self._delete_history_item(item)
 
     def _on_history_context_menu(self, pos):
         item = self._history_list.itemAt(pos)
