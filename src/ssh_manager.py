@@ -4,7 +4,7 @@ import json
 import os
 import stat
 import paramiko
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional, Callable
 

@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 from PySide6.QtWidgets import (
-    QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
+    QMainWindow, QWidget, QVBoxLayout,
     QToolBar, QStatusBar, QProgressBar, QLabel,
     QMessageBox, QSplitter, QApplication,
 )
@@ -235,7 +235,6 @@ class MainWindow(QMainWindow):
         self._transfer_worker.start()
 
     def _on_file_started(self, filename: str):
-        direction = "上传" if self._transfer_worker else "传输"
         self._transfer_label.setText(f"正在传输: {filename}")
 
     def _on_progress(self, filename: str, transferred: int, total: int):

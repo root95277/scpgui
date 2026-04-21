@@ -5,17 +5,16 @@ import stat
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem,
     QLineEdit, QPushButton, QMenu, QInputDialog, QMessageBox, QHeaderView,
     QLabel, QAbstractItemView,
 )
-from PySide6.QtCore import Qt, Signal, QMimeData, QUrl
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QDrag, QIcon
+from PySide6.QtCore import Qt, Signal, QMimeData
+from PySide6.QtGui import QDragEnterEvent, QDropEvent
 
-from ssh_manager import SSHManager, RemoteFileInfo
+from ssh_manager import SSHManager
 
 # Custom data role for storing raw numeric values used in sorting
 SORT_VALUE_ROLE = Qt.ItemDataRole.UserRole + 2
